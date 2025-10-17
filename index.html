@@ -25,12 +25,13 @@
     hr{border:0;border-top:1px solid #000;margin:16px 0}
     .meta{display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin:8px 0 6px 0}
     .meta .line{display:inline-block;border-bottom:2px solid #000;height:0;vertical-align:middle}
+
+    /* PDF mode: agrandir, masquer sélection tables */
     .pdf-hide{display:none!important}
-  /* PDF mode: agrandir les tableaux et cacher la sélection des tables */
-  #sheet.pdf-mode .table-select{display:none!important}
-  #sheet.pdf-mode .grid td, #sheet.pdf-mode .grid th{height:64px;padding:12px;font-size:18px}
-  #sheet.pdf-mode .grid th{background:#f0f0f0}
-  #sheet.pdf-mode .level-title{font-size:16px;margin:10px 0}
+    #sheet.pdf-mode .table-select{display:none!important}
+    #sheet.pdf-mode .grid td, #sheet.pdf-mode .grid th{height:64px;padding:12px;font-size:18px}
+    #sheet.pdf-mode .grid th{background:#f0f0f0}
+    #sheet.pdf-mode .level-title{font-size:16px;margin:10px 0}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -56,74 +57,39 @@
         <div>Date : ____ / ____ / ______</div>
       </div>
 
+      <!-- JEUX 1 à 4 -->
       <div class="gridbox" id="game1">
         <section style="grid-column:1/-1"><h3 class="level-title">Jeu 1</h3></section>
-        <section>
-          <h4 class="level-title">Niveau 1 — 1re ligne & 1re colonne données</h4>
-          <table class="grid" id="g1a"></table>
-        </section>
-        <section>
-          <h4 class="level-title">Niveau 2 — 1re ligne + quelques réponses</h4>
-          <table class="grid" id="g2a"></table>
-        </section>
-        <section>
-          <h4 class="level-title">Niveau 3 — indices (solution unique)</h4>
-          <table class="grid" id="g3a"></table>
-        </section>
+        <section><h4 class="level-title">Niveau 1 — 1re ligne & 1re colonne données</h4><table class="grid" id="g1a"></table></section>
+        <section><h4 class="level-title">Niveau 2 — 1re ligne + quelques réponses</h4><table class="grid" id="g2a"></table></section>
+        <section><h4 class="level-title">Niveau 3 — indices (solution unique)</h4><table class="grid" id="g3a"></table></section>
       </div>
 
       <hr>
 
       <div class="gridbox" id="game2">
         <section style="grid-column:1/-1"><h3 class="level-title">Jeu 2</h3></section>
-        <section>
-          <h4 class="level-title">Niveau 1 — 1re ligne & 1re colonne données</h4>
-          <table class="grid" id="g1b"></table>
-        </section>
-        <section>
-          <h4 class="level-title">Niveau 2 — 1re ligne + quelques réponses</h4>
-          <table class="grid" id="g2b"></table>
-        </section>
-        <section>
-          <h4 class="level-title">Niveau 3 — indices (solution unique)</h4>
-          <table class="grid" id="g3b"></table>
-        </section>
+        <section><h4 class="level-title">Niveau 1 — 1re ligne & 1re colonne données</h4><table class="grid" id="g1b"></table></section>
+        <section><h4 class="level-title">Niveau 2 — 1re ligne + quelques réponses</h4><table class="grid" id="g2b"></table></section>
+        <section><h4 class="level-title">Niveau 3 — indices (solution unique)</h4><table class="grid" id="g3b"></table></section>
       </div>
 
       <hr>
 
       <div class="gridbox" id="game3">
         <section style="grid-column:1/-1"><h3 class="level-title">Jeu 3</h3></section>
-        <section>
-          <h4 class="level-title">Niveau 1 — 1re ligne & 1re colonne données</h4>
-          <table class="grid" id="g1c"></table>
-        </section>
-        <section>
-          <h4 class="level-title">Niveau 2 — 1re ligne + quelques réponses</h4>
-          <table class="grid" id="g2c"></table>
-        </section>
-        <section>
-          <h4 class="level-title">Niveau 3 — indices (solution unique)</h4>
-          <table class="grid" id="g3c"></table>
-        </section>
+        <section><h4 class="level-title">Niveau 1 — 1re ligne & 1re colonne données</h4><table class="grid" id="g1c"></table></section>
+        <section><h4 class="level-title">Niveau 2 — 1re ligne + quelques réponses</h4><table class="grid" id="g2c"></table></section>
+        <section><h4 class="level-title">Niveau 3 — indices (solution unique)</h4><table class="grid" id="g3c"></table></section>
       </div>
 
       <hr>
 
       <div class="gridbox" id="game4">
         <section style="grid-column:1/-1"><h3 class="level-title">Jeu 4</h3></section>
-        <section>
-          <h4 class="level-title">Niveau 1 — 1re ligne & 1re colonne données</h4>
-          <table class="grid" id="g1d"></table>
-        </section>
-        <section>
-          <h4 class="level-title">Niveau 2 — 1re ligne + quelques réponses</h4>
-          <table class="grid" id="g2d"></table>
-        </section>
-        <section>
-          <h4 class="level-title">Niveau 3 — indices (solution unique)</h4>
-          <table class="grid" id="g3d"></table>
-        </section>
+        <section><h4 class="level-title">Niveau 1 — 1re ligne & 1re colonne données</h4><table class="grid" id="g1d"></table></section>
+        <section><h4 class="level-title">Niveau 2 — 1re ligne + quelques réponses</h4><table class="grid" id="g2d"></table></section>
+        <section><h4 class="level-title">Niveau 3 — indices (solution unique)</h4><table class="grid" id="g3d"></table></section>
       </div>
     </div>
   </div>
@@ -132,7 +98,6 @@
   // ===== Utils =====
   const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
   const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=randInt(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
-  const cell=(c,t='td')=>`<${t}>${c}</${t}>`;
   const blank='&nbsp;';
 
   const toggleBtn=document.getElementById('toggle');
@@ -167,6 +132,7 @@
     return html;
   }
 
+  // Unicité N3
   function countSolutionsUnique(pool, rows, cols, mask){
     const P=new Set(pool);
     const rowC=[new Set(),new Set(),new Set()];
@@ -202,10 +168,7 @@
       const Cvals=[null,null,null];
       const dfsC=(i)=>{
         if(i===3){
-          for(const idx of revealed){
-            const rr=(idx/3)|0, cc=idx%3;
-            if(assignR[rr]*Cvals[cc]!==rows[rr]*cols[cc]) return;
-          }
+          for(const idx of revealed){ const rr=(idx/3)|0, cc=idx%3; if(assignR[rr]*Cvals[cc]!==rows[rr]*cols[cc]) return; }
           solutions++; return;
         }
         const c=cOrder[i];
@@ -258,13 +221,30 @@
     S.cols2=pickTriple(pool, usedC, S.cols1); S.cols2.forEach(v=>usedC.add(v));
     S.rows3=pickTriple(pool, usedR, S.rows2); S.cols3=pickTriple(pool, usedC, S.cols2);
 
+    // N1: 1re ligne/colonne visibles, aucune case remplie
     S.mask1=new Set();
     document.getElementById('g1'+gkey).innerHTML=genGrid(S.rows1,S.cols1,S.mask1,{showTop:true, showLeft:true});
 
+    // N2: 1re ligne visible; 3 ou 4 réponses, jamais alignées horizontalement ou verticalement
     S.mask2=new Set();
-    shuffle([...Array(9).keys()]).slice(0,randInt(3,5)).forEach(i=>S.mask2.add(i));
+    let tries2=0;
+    while(tries2<200){
+      tries2++;
+      const count = Math.random()<0.5 ? 3 : 4;
+      const idxs = shuffle([...Array(9).keys()]).slice(0,count);
+      const rows = idxs.map(i=>Math.floor(i/3));
+      const cols = idxs.map(i=>i%3);
+      const allSameRow = rows.every(r=>r===rows[0]);
+      const allSameCol = cols.every(c=>c===cols[0]);
+      // Interdictions : tous dans la même ligne/colonne, ou 3+ dans une même ligne/colonne
+      let ok = !allSameRow && !allSameCol;
+      for(let r=0;r<3;r++){ if(rows.filter(rr=>rr===r).length>=3){ ok=false; break; } }
+      for(let c=0;c<3;c++){ if(cols.filter(cc=>cc===c).length>=3){ ok=false; break; } }
+      if(ok){ S.mask2=new Set(idxs); break; }
+    }
     document.getElementById('g2'+gkey).innerHTML=genGrid(S.rows2,S.cols2,S.mask2,{showTop:true, showLeft:false});
 
+    // N3: indices (4 si possible sinon 5) avec unicité, sans ligne/colonne complète
     function validMask(m){
       for(let r=0;r<3;r++){ if([0,1,2].every(c=>m.has(r*3+c))) return false; }
       for(let c=0;c<3;c++){ if([0,1,2].every(r=>m.has(r*3+c))) return false; }
@@ -303,35 +283,27 @@
     });
   });
 
+  // Export PDF — bitmap fiable (Firefox/Windows) + grilles agrandies et tables cachées
   async function exportPDF(){
     const sheet = document.querySelector('#sheet');
     if(!sheet){ alert('#sheet introuvable'); return; }
     const tableSel = document.getElementById('tableSelect');
     try{
       if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
-      // Activer un mode PDF: fond clair déjà par défaut, agrandir les cellules et cacher la sélection des tables
       sheet.classList.add('pdf-mode');
       if(tableSel) tableSel.classList.add('pdf-hide');
-      await new Promise(r=>setTimeout(r,30)); // stabilise le DOM
+      await new Promise(r=>setTimeout(r,30));
 
       if(!(window.jspdf && (window.jspdf.jsPDF||window.jspdf))){ throw new Error('jsPDF non chargé'); }
       const jsPDFCtor = window.jspdf.jsPDF || window.jspdf;
-
-      // Capture bitmap fiable (Firefox/Windows)
       window.scrollTo(0,0);
-      const canvas = await html2canvas(sheet,{
-        scale: 3,
-        background: '#ffffff',
-        useCORS: true,
-        allowTaint: true,
-        logging: false
-      });
+      const canvas = await html2canvas(sheet,{ scale:3, background:'#ffffff', useCORS:true, allowTaint:true, logging:false });
 
       const pdf = new jsPDFCtor({orientation:'portrait', unit:'pt', format:'a4'});
       const img = canvas.toDataURL('image/png');
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const margin = 10; // marges réduites pour agrandir encore
+      const margin = 10;
       const scale = Math.min((pageW - margin*2)/canvas.width, (pageH - margin*2)/canvas.height);
       const w = canvas.width * scale;
       const h = canvas.height * scale;
@@ -339,7 +311,6 @@
       const y = (pageH - h)/2;
       pdf.addImage(img, 'PNG', x, Math.max(margin, y), w, h, undefined, 'FAST');
 
-      // Ouverture — blob d'abord, puis dataURL en secours (Firefox)
       try{
         const blob = pdf.output('blob');
         const url = URL.createObjectURL(blob);
@@ -353,7 +324,6 @@
       console.error('[PDF - html2canvas] ', err);
       alert('⚠️ Export PDF : échec. Essaie Imprimer → Enregistrer en PDF, et dis-moi le message console.');
     } finally {
-      // Revenir au mode normal à l'écran
       sheet.classList.remove('pdf-mode');
       if(tableSel) tableSel.classList.remove('pdf-hide');
     }
