@@ -25,6 +25,12 @@
     hr{border:0;border-top:1px solid #000;margin:16px 0}
     .meta{display:flex;flex-wrap:wrap;gap:18px;align-items:center;margin:8px 0 6px 0}
     .meta .line{display:inline-block;border-bottom:2px solid #000;height:0;vertical-align:middle}
+    .pdf-hide{display:none!important}
+  /* PDF mode: agrandir les tableaux et cacher la sélection des tables */
+  #sheet.pdf-mode .table-select{display:none!important}
+  #sheet.pdf-mode .grid td, #sheet.pdf-mode .grid th{height:64px;padding:12px;font-size:18px}
+  #sheet.pdf-mode .grid th{background:#f0f0f0}
+  #sheet.pdf-mode .level-title{font-size:16px;margin:10px 0}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
@@ -282,9 +288,14 @@
   async function exportPDF(){
     const sheet = document.querySelector('#sheet');
     if(!sheet){ alert('#sheet introuvable'); return; }
+    const tableSel = document.getElementById('tableSelect');
     try{
       if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
+      // Activer un mode PDF: fond clair déjà par défaut, agrandir les cellules et cacher la sélection des tables
+      sheet.classList.add('pdf-mode');
+      if(tableSel) tableSel.classList.add('pdf-hide');
       await new Promise(r=>setTimeout(r,30)); // stabilise le DOM
+
       if(!(window.jspdf && (window.jspdf.jsPDF||window.jspdf))){ throw new Error('jsPDF non chargé'); }
       const jsPDFCtor = window.jspdf.jsPDF || window.jspdf;
 
@@ -302,7 +313,7 @@
       const img = canvas.toDataURL('image/png');
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const margin = 20;
+      const margin = 10; // marges réduites pour agrandir encore
       const scale = Math.min((pageW - margin*2)/canvas.width, (pageH - margin*2)/canvas.height);
       const w = canvas.width * scale;
       const h = canvas.height * scale;
@@ -323,6 +334,10 @@
     }catch(err){
       console.error('[PDF - html2canvas] ', err);
       alert('⚠️ Export PDF : échec. Essaie Imprimer → Enregistrer en PDF, et dis-moi le message console.');
+    } finally {
+      // Revenir au mode normal à l'écran
+      sheet.classList.remove('pdf-mode');
+      if(tableSel) tableSel.classList.remove('pdf-hide');
     }
   }
 
