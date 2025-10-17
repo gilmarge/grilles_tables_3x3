@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Générateur de grilles 3×3 — tables de multiplication</title>
+  <style>
+    :root{--bg:#0b1020;--card:#131a33;--ink:#eaf0ff;--muted:#b6c0e0;--accent:#6aa9ff;--grid:#2a3259}
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#0b1020 0%,#0e1330 100%);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .wrap{max-width:1100px;margin:24px auto;padding:16px}
+    header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:12px}
+    h1{font-size:20px;margin:0;font-weight:700;letter-spacing:.2px}
+    .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+    .btn{appearance:none;border:none;background:var(--accent);color:#081024;font-weight:700;border-radius:10px;padding:10px 14px;cursor:pointer}
+    .btn.secondary{background:#1f2a52;color:var(--ink);border:1px solid #30407a}
+    .card{background:var(--card);border:1px solid #223;box-shadow:0 6px 20px rgba(0,0,0,.25);border-radius:14px;padding:14px}
+    .grid{border-collapse:collapse;width:100%;table-layout:fixed}
+    .grid td,.grid th{border:1px solid var(--grid);padding:10px;text-align:center;height:46px}
+    .grid th{background:#172146;color:var(--ink)}
+    .gridbox{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:10px}
+    .badge{font-size:12px;padding:2px 8px;border-radius:999px;background:#0f1b45;border:1px solid #2a3a7a;color:var(--muted)}
+    .level-title{margin:6px 0 8px 0;font-weight:700;color:var(--accent)}
+    .table-select{margin-bottom:10px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .table-select label{display:flex;align-items:center;gap:4px;background:#1a244a;padding:4px 8px;border-radius:6px;}
+    hr{border:0;border-top:1px solid #2a3259;margin:16px 0}
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Générateur de grilles 3×3 — tables de multiplication</h1>
+      <div class="controls">
+        <button id="regen" class="btn">🔁 Régénérer</button>
+        <button id="toggle" class="btn secondary">👁️ Afficher les corrigés</button>
+        <button id="pdf" class="btn">📄 Exporter en PDF</button>
+      </div>
+    </header>
+
+    <div class="card" id="sheet">
+      <div class="table-select" id="tableSelect">
+        <span>Choisis les tables (2 à 12) :</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div class="badge">Nom : ____________</div>
+        <div class="badge">Date : ____ / ____ / ______</div>
+        <div class="badge">Classe : ____</div>
+      </div>
+
+      <div class="gridbox" id="game1">
+        <section style="grid-column:1/-1"><h3 class="level-title">Jeu 1</h3></section>
+        <section>
+          <h4 class="level-title">🟢 Niveau 1 — 1re ligne et 1re colonne données</h4>
+          <table class="grid" id="g1a"></table>
+        </section>
+        <section>
+          <h4 class="level-title">🟡 Niveau 2 — 1re ligne donnée + quelques résultats</h4>
+          <table class="grid" id="g2a"></table>
+        </section>
+        <section>
+          <h4 class="level-title">🔴 Niveau 3 — 1re ligne/colonne vides, indices</h4>
+          <table class="grid" id="g3a"></table>
+        </section>
+      </div>
+
+      <hr>
+
+      <div class="gridbox" id="game2">
+        <section style="grid-column:1/-1"><h3 class="level-title">Jeu 2</h3></section>
+        <section>
+          <h4 class="level-title">🟢 Niveau 1 — 1re ligne et 1re colonne données</h4>
+          <table class="grid" id="g1b"></table>
+        </section>
+        <section>
+          <h4 class="level-title">🟡 Niveau 2 — 1re ligne donnée + quelques résultats</h4>
+          <table class="grid" id="g2b"></table>
+        </section>
+        <section>
+          <h4 class="level-title">🔴 Niveau 3 — 1re ligne/colonne vides, indices</h4>
+          <table class="grid" id="g3b"></table>
+        </section>
+      </div>
+
+      <hr>
+
+      <div class="gridbox" id="game3">
+        <section style="grid-column:1/-1"><h3 class="level-title">Jeu 3</h3></section>
+        <section>
+          <h4 class="level-title">🟢 Niveau 1 — 1re ligne et 1re colonne données</h4>
+          <table class="grid" id="g1c"></table>
+        </section>
+        <section>
+          <h4 class="level-title">🟡 Niveau 2 — 1re ligne donnée + quelques résultats</h4>
+          <table class="grid" id="g2c"></table>
+        </section>
+        <section>
+          <h4 class="level-title">🔴 Niveau 3 — 1re ligne/colonne vides, indices</h4>
+          <table class="grid" id="g3c"></table>
+        </section>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ===== Utils =====
+  const randInt=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+  const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=randInt(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+  const cell=(c,t='td')=>`<${t}>${c}</${t}>`;
+  const blank='&nbsp;';
+
+  // DOM refs
+  const toggleBtn=document.getElementById('toggle');
+  const tableSelect=document.getElementById('tableSelect');
+
+  // Build table selector (2..12)
+  if(!tableSelect.dataset.inited){
+    for(let i=2;i<=12;i++){
+      const label=document.createElement('label');
+      label.innerHTML=`<input type='checkbox' value='${i}' checked> ${i}`;
+      tableSelect.appendChild(label);
+    }
+    tableSelect.dataset.inited='1';
+  }
+  const getSelectedTables=()=>[...tableSelect.querySelectorAll('input:checked')].map(x=>+x.value);
+
+  // State per game (A,B,C) and per level
+  let showSolutions=false;
+  const games=['a','b','c'];
+  const state={}; // state['a']={rows1,cols1,rows2,cols2,rows3,cols3,mask1,mask2,mask3}
+  games.forEach(g=>state[g]={rows1:[],cols1:[],rows2:[],cols2:[],rows3:[],cols3:[],mask1:new Set(),mask2:new Set(),mask3:new Set()});
+
+  // ===== Grid rendering =====
+  function genGrid(rows,cols,mask,{showTop=true, showLeft=true}={}){
+    const header=['×',...cols];
+    let html='<tr>' + header.map((v,i)=>`<th>${i===0 ? '×' : (showTop? v : blank)}</th>`).join('') + '</tr>';
+    for(let r=0;r<3;r++){
+      html+=`<tr><th>${showLeft? rows[r] : blank}</th>`;
+      for(let c=0;c<3;c++){
+        const val=rows[r]*cols[c];
+        const idx=r*3+c;
+        const reveal = showSolutions || mask.has(idx);
+        html+=`<td>${reveal?val:blank}</td>`;
+      }
+      html+='</tr>';
+    }
+    return html;
+  }
+
+  // ===== Level 3 uniqueness checker (pruned backtracking) =====
+  function countSolutionsUnique(pool, rows, cols, mask){
+    const P=new Set(pool);
+    // Candidate sets for rows/cols based on revealed products
+    const rowC=[new Set(),new Set(),new Set()];
+    const colC=[new Set(),new Set(),new Set()];
+    // Precompute revealed products per cell
+    const revealed=[]; for(let i=0;i<9;i++) if(mask.has(i)) revealed.push(i);
+    // Build candidate rows: v in pool s.t. for all revealed cells in that row, products divisible & quotient in pool
+    for(let r=0;r<3;r++){
+      for(const v of P){
+        let ok=true;
+        for(const idx of revealed){
+          const rr=(idx/3)|0, cc=idx%3; if(rr!==r) continue;
+          const prod=rows[rr]*cols[cc];
+          if(prod%v!==0 || !P.has(prod/v)){ ok=false; break; }
+        }
+        if(ok) rowC[r].add(v);
+      }
+    }
+    // Candidate cols similarly
+    for(let c=0;c<3;c++){
+      for(const v of P){
+        let ok=true;
+        for(const idx of revealed){
+          const rr=(idx/3)|0, cc=idx%3; if(cc!==c) continue;
+          const prod=rows[rr]*cols[cc];
+          if(prod%v!==0 || !P.has(prod/v)){ ok=false; break; }
+        }
+        if(ok) colC[c].add(v);
+      }
+    }
+    // Backtrack rows then cols ensuring distinctness
+    const usedR=new Set(), usedC=new Set();
+    let solutions=0;
+    const rOrder=[0,1,2].sort((a,b)=>rowC[a].size-rowC[b].size);
+    const cOrder=[0,1,2].sort((a,b)=>colC[a].size-colC[b].size);
+    const assignCols=(assignR)=>{
+      const Cvals=[null,null,null];
+      const dfsC=(i)=>{
+        if(i===3){
+          // validate all revealed products
+          for(const idx of revealed){
+            const rr=(idx/3)|0, cc=idx%3;
+            if(assignR[rr]*Cvals[cc]!==rows[rr]*cols[cc]) return;
+          }
+          solutions++; return;
+        }
+        const c=cOrder[i];
+        for(const v of colC[c]){
+          if(usedC.has(v)) continue;
+          Cvals[c]=v; usedC.add(v);
+          dfsC(i+1);
+          if(solutions>1) return; // prune
+          usedC.delete(v);
+        }
+      };
+      dfsC(0);
+    };
+    const Rvals=[null,null,null];
+    const dfsR=(i)=>{
+      if(i===3){ assignCols(Rvals); return; }
+      const r=rOrder[i];
+      for(const v of rowC[r]){
+        if(usedR.has(v)) continue;
+        Rvals[r]=v; usedR.add(v);
+        dfsR(i+1);
+        if(solutions>1) return; // prune
+        usedR.delete(v);
+      }
+    };
+    dfsR(0);
+    return solutions;
+  }
+
+  // ===== Helper to pick distinct triples for each level =====
+  function pickTriple(pool, avoidSet=new Set(), avoidExactly=null){
+    const choices=pool.filter(v=>!avoidSet.has(v));
+    let triple;
+    if(choices.length>=3){ triple=shuffle(choices.slice()).slice(0,3); }
+    else { triple=shuffle(pool.slice()).slice(0,3); }
+    // Ensure not exactly same as avoidExactly
+    if(avoidExactly && new Set(triple).size===new Set(avoidExactly).size && triple.every(v=>avoidExactly.includes(v))){
+      // force change by replacing one element
+      const others=pool.filter(v=>!avoidExactly.includes(v));
+      if(others.length){ triple[0]=others[0]; }
+    }
+    return triple;
+  }
+
+  // ===== Render all levels =====
+  function renderGame(gkey){
+    const pool=[...getSelectedTables()];
+    if(pool.length<3){ alert('Sélectionne au moins 3 tables.'); return; }
+    const S=state[gkey];
+    // Avoid overlaps across levels inside the same game
+    const usedR=new Set(), usedC=new Set();
+    S.rows1=pickTriple(pool, usedR); S.rows1.forEach(v=>usedR.add(v));
+    S.cols1=pickTriple(pool, usedC); S.cols1.forEach(v=>usedC.add(v));
+    S.rows2=pickTriple(pool, usedR, S.rows1); S.rows2.forEach(v=>usedR.add(v));
+    S.cols2=pickTriple(pool, usedC, S.cols1); S.cols2.forEach(v=>usedC.add(v));
+    S.rows3=pickTriple(pool, usedR, S.rows2); S.cols3=pickTriple(pool, usedC, S.cols2);
+
+    // Masks per level for this game
+    S.mask1=new Set();
+    document.getElementById('g1'+gkey).innerHTML=genGrid(S.rows1,S.cols1,S.mask1,{showTop:true, showLeft:true});
+
+    S.mask2=new Set();
+    shuffle([...Array(9).keys()]).slice(0,randInt(3,5)).forEach(i=>S.mask2.add(i));
+    document.getElementById('g2'+gkey).innerHTML=genGrid(S.rows2,S.cols2,S.mask2,{showTop:true, showLeft:false});
+
+    // Level 3: unique solution
+    function validMask(m){
+      for(let r=0;r<3;r++){ if([0,1,2].every(c=>m.has(r*3+c))) return false; }
+      for(let c=0;c<3;c++){ if([0,1,2].every(r=>m.has(r*3+c))) return false; }
+      return true;
+    }
+    let tries=0, ok=false, target=4, m;
+    while(tries<200 && !ok){
+      m=new Set();
+      if(target===4){
+        const idxs=shuffle([...Array(9).keys()]).slice(0,4); idxs.forEach(i=>m.add(i));
+        if(!validMask(m)){ tries++; continue; }
+      } else {
+        const colsPerm=shuffle([0,1,2]); const a=colsPerm[0], b=colsPerm[1], c=colsPerm[2];
+        m=new Set([0*3+a,0*3+b,1*3+a,1*3+c,2*3+b]);
+      }
+      const cnt=countSolutionsUnique(pool, S.rows3, S.cols3, m);
+      if(cnt===1){ ok=true; }
+      else { tries++; if(tries>120 && target===4) target=5; }
+    }
+    if(!ok){ const colsPerm=shuffle([0,1,2]); const a=colsPerm[0], b=colsPerm[1], c=colsPerm[2]; m=new Set([0*3+a,0*3+b,1*3+a,1*3+c,2*3+b]); }
+    S.mask3=m;
+    document.getElementById('g3'+gkey).innerHTML=genGrid(S.rows3,S.cols3,S.mask3,{showTop:false, showLeft:false});
+  }
+
+  function renderAll(){ games.forEach(renderGame); }
+
+  // Events
+  document.getElementById('regen').addEventListener('click',()=>{ showSolutions=false; toggleBtn.textContent='👁️ Afficher les corrigés'; renderAll(); });
+  toggleBtn.addEventListener('click',()=>{
+    showSolutions=!showSolutions;
+    toggleBtn.textContent = showSolutions ? '🙈 Masquer les corrigés' : '👁️ Afficher les corrigés';
+    games.forEach(gkey=>{
+      const S=state[gkey];
+      document.getElementById('g1'+gkey).innerHTML=genGrid(S.rows1,S.cols1,S.mask1,{showTop:true, showLeft:true});
+      document.getElementById('g2'+gkey).innerHTML=genGrid(S.rows2,S.cols2,S.mask2,{showTop:true, showLeft:false});
+      document.getElementById('g3'+gkey).innerHTML=genGrid(S.rows3,S.cols3,S.mask3,{showTop:false, showLeft:false});
+    });
+  });
+
+  // ===== Export PDF — rendu vectoriel (texte sélectionnable) via jsPDF.html =====
+  async function exportPDF(){
+    const sheet = document.querySelector('#sheet');
+    if(!sheet){ alert('#sheet introuvable'); return; }
+    try{
+      if(document.fonts && document.fonts.ready){ await document.fonts.ready; }
+      if(!(window.jspdf && (window.jspdf.jsPDF||window.jspdf))){ throw new Error('jsPDF non chargé'); }
+      const jsPDFCtor = window.jspdf.jsPDF || window.jspdf;
+
+      // Pré-ouvrir un onglet pour Firefox (évite le bloqueur de popups)
+      const newTab = window.open('about:blank','_blank');
+
+      // DOM temporaire épuré pour le rendu PDF (fond blanc)
+      const tmp = document.createElement('div');
+      tmp.style.cssText = 'position:fixed;left:-99999px;top:0;background:#fff;color:#000;padding:0;margin:0;width:794px;';
+
+      const style = document.createElement('style');
+      style.textContent = `
+        *{box-sizing:border-box} body{background:#fff;color:#000;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Arial,sans-serif}
+        .pdf-sheet{background:#fff;color:#000;padding:14px;border:1px solid #000}
+        h3,h4{color:#000;margin:6px 0 8px 0}
+        .grid{border-collapse:collapse;width:100%;table-layout:fixed}
+        .grid td,.grid th{border:1px solid #000;padding:8px;text-align:center;height:40px}
+        .grid th{background:#f4f6ff}
+        .gridbox{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px}
+        .level-title{color:#000;font-weight:700}
+        .meta{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin:6px 0}
+        .meta .line{display:inline-block;border-bottom:2px solid #000;height:0;vertical-align:middle}
+        hr{border:0;border-top:1px solid #000;margin:12px 0}
+        .table-select{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:6px}
+        .table-select label{background:#fff;color:#000;border:1px solid #000;padding:2px 6px;border-radius:4px}
+      `;
+      tmp.appendChild(style);
+
+      const clone = sheet.cloneNode(true);
+      const ctrls = clone.querySelector('.controls'); if(ctrls) ctrls.remove();
+      clone.classList.add('pdf-sheet');
+      const badges = clone.querySelectorAll('.badge');
+      badges.forEach(b=>{ const txt=b.textContent.replace(/:.*$/,':'); b.outerHTML = `<span>${txt} <span class="line" style="width:${txt.includes('Nom')? '360px':'180px'}"></span></span>`; });
+      tmp.appendChild(clone);
+      document.body.appendChild(tmp);
+
+      const pdf = new jsPDFCtor({orientation:'portrait', unit:'pt', format:'a4'});
+      await pdf.html(tmp, {
+        x: 18,
+        y: 18,
+        html2canvas: { scale: 1, background:'#ffffff', useCORS:true },
+        windowWidth: tmp.scrollWidth,
+        margin: [0,0,0,0]
+      });
+
+      document.body.removeChild(tmp);
+
+      // Afficher dans l'onglet déjà ouvert (fiable sur Firefox/Windows)
+      const dataUrl = pdf.output('dataurlstring');
+      if(newTab){ newTab.location.href = dataUrl; } else { window.open(dataUrl, '_blank'); }
+    }catch(err){
+      console.error('[PDF vectoriel FF] ', err);
+      alert('⚠️ Export PDF : échec. Essaie Imprimer → Enregistrer en PDF. Dis-moi si l’erreur persiste.');
+    }
+  }
+
+  // Initial render
+  renderAll();
+
+  // Bind PDF & table selection
+  document.getElementById('pdf').addEventListener('click', exportPDF);
+  document.getElementById('tableSelect').addEventListener('change', ()=>{ renderAll(); });
+
+  // ===== Simple self-tests (console) =====
+  (function selfTest(){
+    console.assert(document.getElementById('g1a'), 'Test: #g1a existe');
+    console.assert(document.getElementById('g2b'), 'Test: #g2b existe');
+    console.assert(document.getElementById('g3c'), 'Test: #g3c existe');
+    console.assert(typeof exportPDF === 'function', 'Test: exportPDF défini');
+  })();
+  </script>
+</body>
+</html>
