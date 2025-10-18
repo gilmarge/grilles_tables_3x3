@@ -133,7 +133,52 @@
     return html;
   }
 
-  // ===== Unicité N3 =====
+  // ===== Unicité N2 (colonnes connues, lignes inconnues) & N3 =====
+  // Compte les solutions pour N2 : colonnes visibles (connues), on doit déduire les 3 lignes (distinctes, prises dans pool)
+  function countSolutionsLevel2Unique(pool, rowsTrue, colsKnown, mask){
+    const P = new Set(pool);
+    // valeurs révélées par le masque (on lit les vrais produits pour construire les contraintes)
+    const revealedIdx = [];
+    for(let i=0;i<9;i++){ if(mask.has(i)) revealedIdx.push(i); }
+    // Candidats par ligne
+    const cand = [new Set(P), new Set(P), new Set(P)];
+    for(const idx of revealedIdx){
+      const r = (idx/3)|0, c = idx%3;
+      const prod = rowsTrue[r]*colsKnown[c];
+      if(prod % colsKnown[c] !== 0) return 0; // sécurité
+      const v = prod / colsKnown[c];
+      if(!P.has(v)) return 0;
+      // la ligne r est contrainte à v
+      cand[r] = new Set([v]);
+    }
+    // Vérifier cohérence multiple dans une même ligne (au cas où)
+    for(let r=0;r<3;r++){
+      if(cand[r].size===1){
+        const v=[...cand[r]][0];
+        // revalider tous les révélés de la ligne r
+        for(const idx of revealedIdx){ const rr=(idx/3)|0, cc=idx%3; if(rr!==r) continue; if(v*colsKnown[cc]!==rowsTrue[rr]*colsKnown[cc]) return 0; }
+      }
+    }
+    // Backtracking avec distinctness
+    const order=[0,1,2].sort((a,b)=>cand[a].size-cand[b].size);
+    const used=new Set();
+    let solutions=0;
+    const assign=(i, pick)=>{
+      if(i===3){ solutions++; return; }
+      const r=order[i];
+      for(const v of cand[r]){
+        if(used.has(v)) continue;
+        used.add(v); pick[r]=v;
+        assign(i+1, pick);
+        if(solutions>1) return; // prune multi-solutions
+        used.delete(v);
+      }
+    };
+    assign(0, [null,null,null]);
+    return solutions;
+  }
+
+  // Compte les solutions pour N3 (lignes/colonnes inconnues, indices = produits révélés)
   function countSolutionsUnique(pool, rows, cols, mask){
     const P=new Set(pool);
     const rowC=[new Set(),new Set(),new Set()];
@@ -177,7 +222,7 @@
           if(usedC.has(v)) continue;
           Cvals[c]=v; usedC.add(v);
           dfsC(i+1);
-          if(solutions>1) return;
+          if(solutions>1) return; // prune
           usedC.delete(v);
         }
       };
@@ -191,7 +236,7 @@
         if(usedR.has(v)) continue;
         Rvals[r]=v; usedR.add(v);
         dfsR(i+1);
-        if(solutions>1) return;
+        if(solutions>1) return; // prune
         usedR.delete(v);
       }
     };
@@ -226,21 +271,24 @@
     S.mask1=new Set();
     document.getElementById('g1'+gkey).innerHTML=genGrid(S.rows1,S.cols1,S.mask1,{showTop:true, showLeft:true});
 
-    // N2: 1re ligne visible; 3 ou 4 réponses, jamais alignées horizontalement ou verticalement
+    // N2: 1re ligne visible; 3 ou 4 réponses, jamais alignées H/V et **solution unique**
     S.mask2=new Set();
     let tries2=0;
-    while(tries2<200){
+    while(tries2<500){
       tries2++;
       const count = Math.random()<0.5 ? 3 : 4;
       const idxs = shuffle([...Array(9).keys()]).slice(0,count);
-      const rows = idxs.map(i=>Math.floor(i/3));
-      const cols = idxs.map(i=>i%3);
-      const allSameRow = rows.every(r=>r===rows[0]);
-      const allSameCol = cols.every(c=>c===cols[0]);
+      const rowsIdx = idxs.map(i=>Math.floor(i/3));
+      const colsIdx = idxs.map(i=>i%3);
+      const allSameRow = rowsIdx.every(r=>r===rowsIdx[0]);
+      const allSameCol = colsIdx.every(c=>c===colsIdx[0]);
       let ok = !allSameRow && !allSameCol;
-      for(let r=0;r<3;r++){ if(rows.filter(rr=>rr===r).length>=3){ ok=false; break; } }
-      for(let c=0;c<3;c++){ if(cols.filter(cc=>cc===c).length>=3){ ok=false; break; } }
-      if(ok){ S.mask2=new Set(idxs); break; }
+      for(let r=0;r<3;r++){ if(rowsIdx.filter(rr=>rr===r).length>=3){ ok=false; break; } }
+      for(let c=0;c<3;c++){ if(colsIdx.filter(cc=>cc===c).length>=3){ ok=false; break; } }
+      if(!ok) continue;
+      const m2=new Set(idxs);
+      const solCount = countSolutionsLevel2Unique(pool, S.rows2, S.cols2, m2);
+      if(solCount===1){ S.mask2=m2; break; }
     }
     document.getElementById('g2'+gkey).innerHTML=genGrid(S.rows2,S.cols2,S.mask2,{showTop:true, showLeft:false, forceShowHeaders:showSolutions});
 
