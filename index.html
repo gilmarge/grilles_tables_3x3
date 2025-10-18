@@ -116,11 +116,12 @@
   const state={};
   games.forEach(g=>state[g]={rows1:[],cols1:[],rows2:[],cols2:[],rows3:[],cols3:[],mask1:new Set(),mask2:new Set(),mask3:new Set()});
 
-  function genGrid(rows,cols,mask,{showTop=true, showLeft=true}={}){
+  // ===== Rendu d'une grille (avec forçage d'entêtes quand corrigés affichés) =====
+  function genGrid(rows, cols, mask, {showTop=true, showLeft=true, forceShowHeaders=false}={}){
     const header=['×',...cols];
-    let html='<tr>' + header.map((v,i)=>`<th>${i===0 ? '×' : (showTop? v : blank)}</th>`).join('') + '</tr>';
+    let html='<tr>' + header.map((v,i)=>`<th>${i===0 ? '×' : ((showTop||forceShowHeaders)? v : blank)}</th>`).join('') + '</tr>';
     for(let r=0;r<3;r++){
-      html+=`<tr><th>${showLeft? rows[r] : blank}</th>`;
+      html+=`<tr><th>${(showLeft||forceShowHeaders)? rows[r] : blank}</th>`;
       for(let c=0;c<3;c++){
         const val=rows[r]*cols[c];
         const idx=r*3+c;
@@ -132,7 +133,7 @@
     return html;
   }
 
-  // Unicité N3
+  // ===== Unicité N3 =====
   function countSolutionsUnique(pool, rows, cols, mask){
     const P=new Set(pool);
     const rowC=[new Set(),new Set(),new Set()];
@@ -236,13 +237,12 @@
       const cols = idxs.map(i=>i%3);
       const allSameRow = rows.every(r=>r===rows[0]);
       const allSameCol = cols.every(c=>c===cols[0]);
-      // Interdictions : tous dans la même ligne/colonne, ou 3+ dans une même ligne/colonne
       let ok = !allSameRow && !allSameCol;
       for(let r=0;r<3;r++){ if(rows.filter(rr=>rr===r).length>=3){ ok=false; break; } }
       for(let c=0;c<3;c++){ if(cols.filter(cc=>cc===c).length>=3){ ok=false; break; } }
       if(ok){ S.mask2=new Set(idxs); break; }
     }
-    document.getElementById('g2'+gkey).innerHTML=genGrid(S.rows2,S.cols2,S.mask2,{showTop:true, showLeft:false});
+    document.getElementById('g2'+gkey).innerHTML=genGrid(S.rows2,S.cols2,S.mask2,{showTop:true, showLeft:false, forceShowHeaders:showSolutions});
 
     // N3: indices (4 si possible sinon 5) avec unicité, sans ligne/colonne complète
     function validMask(m){
@@ -266,7 +266,7 @@
     }
     if(!ok){ const colsPerm=shuffle([0,1,2]); const a=colsPerm[0], b=colsPerm[1], c=colsPerm[2]; m=new Set([0*3+a,0*3+b,1*3+a,1*3+c,2*3+b]); }
     S.mask3=m;
-    document.getElementById('g3'+gkey).innerHTML=genGrid(S.rows3,S.cols3,S.mask3,{showTop:false, showLeft:false});
+    document.getElementById('g3'+gkey).innerHTML=genGrid(S.rows3,S.cols3,S.mask3,{showTop:false, showLeft:false, forceShowHeaders:showSolutions});
   }
 
   function renderAll(){ ['a','b','c','d'].forEach(renderGame); }
@@ -278,8 +278,8 @@
     ['a','b','c','d'].forEach(gkey=>{
       const S=state[gkey];
       document.getElementById('g1'+gkey).innerHTML=genGrid(S.rows1,S.cols1,S.mask1,{showTop:true, showLeft:true});
-      document.getElementById('g2'+gkey).innerHTML=genGrid(S.rows2,S.cols2,S.mask2,{showTop:true, showLeft:false});
-      document.getElementById('g3'+gkey).innerHTML=genGrid(S.rows3,S.cols3,S.mask3,{showTop:false, showLeft:false});
+      document.getElementById('g2'+gkey).innerHTML=genGrid(S.rows2,S.cols2,S.mask2,{showTop:true, showLeft:false, forceShowHeaders:showSolutions});
+      document.getElementById('g3'+gkey).innerHTML=genGrid(S.rows3,S.cols3,S.mask3,{showTop:false, showLeft:false, forceShowHeaders:showSolutions});
     });
   });
 
